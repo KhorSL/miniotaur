@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  # app:
+  #   image: golang:1.20.5-alpine3.18
+  #   ports:
+  #     - 3000:3000
+  minio:
+    image: quay.io/minio/minio:RELEASE.2023-06-23T20-26-00Z
+    volumes:
+      - ./data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: 'minio_user'
+      MINIO_ROOT_PASSWORD: 'minio_password'
+      MINIO_ADDRESS: ':9000'
+      MINIO_CONSOLE_ADDRESS: ':9001'
+    command: minio server /data
