@@ -17,7 +17,7 @@ Credentials specified in `.env` file. See `.env_example` for example.
 http://localhost:9001
 ```
 
-## AWS CLI Commands
+#### Create Buckets with AWS CLI Commands
 
 ```
 # Access Key = MINIO_ROOT_USER
