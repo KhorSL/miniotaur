@@ -6,13 +6,12 @@ Simple object store service using [Minio](https://min.io/)
 
 ```
 cp .env_example .env
-docker-compose up -d
 make start
 ```
 
 ### Accessing Minio
 
-See docker-compose.yml file for credentials
+Credentials specified in `.env` file. See `.env_example` for example.
 
 ```
 http://localhost:9001
