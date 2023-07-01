@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/khorsl/minio_tutorial/common/constants"
 	"github.com/rs/zerolog"
 )
 
@@ -54,7 +55,7 @@ func (z *ZeroLogger) Fatal(msg string, fields map[string]interface{}) {
 
 func (z *ZeroLogger) addContextCommonFields(fields map[string]interface{}) {
 	if z.ctx != nil {
-		commonFields, ok := z.ctx.Value("commonFields").(map[string]interface{})
+		commonFields, ok := z.ctx.Value(constants.LoggerCommonFields).(map[string]interface{})
 		if !ok {
 			return
 		}

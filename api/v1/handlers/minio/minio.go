@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
+	"github.com/khorsl/minio_tutorial/common/constants"
 	"github.com/khorsl/minio_tutorial/common/log/logger"
 	"github.com/khorsl/minio_tutorial/internal/services/minio"
 )
@@ -120,7 +121,7 @@ func getLogger(loggerType string) logger.Logger {
 	}
 
 	ctx := context.TODO()
-	ctx = context.WithValue(ctx, "commonFields", map[string]interface{}{
+	ctx = context.WithValue(ctx, constants.LoggerCommonFields, map[string]interface{}{
 		"correlation_id": uid.String(),
 	})
 
