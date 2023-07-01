@@ -1,7 +1,9 @@
 package minio
 
-import "github.com/aws/aws-sdk-go-v2/service/s3"
+import (
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+)
 
 type MinioSvc struct {
-	Client *s3.Client
+	client *s3.Client
 }

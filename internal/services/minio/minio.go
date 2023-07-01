@@ -3,13 +3,13 @@ package minio
 import (
 	"context"
 	"io"
-	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/khorsl/minio_tutorial/common/log/logger"
 )
 
 func NewMinioSvc() *MinioSvc {
@@ -19,6 +19,8 @@ func NewMinioSvc() *MinioSvc {
 }
 
 func (m *MinioSvc) initClient() {
+	logger := logger.NewLoggerWrapper(os.Getenv("DEFAULT_LOGGER_TYPE"), context.TODO())
+
 	bucketUrl := os.Getenv("S3_BUCKET_ENDPOINT")
 	awsRegion := os.Getenv("AWS_REGION")
 	bucketEndpointResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
@@ -37,20 +39,24 @@ func (m *MinioSvc) initClient() {
 		config.WithEndpointResolverWithOptions(bucketEndpointResolver))
 
 	if err != nil {
-		log.Printf("Unable to load config: %v\n", err)
+		logger.Error("Unable to load config", map[string]interface{}{
+			"error": err,
+		})
 	}
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
 	})
 
-	m.Client = client
+	m.client = client
 }
 
-func (m *MinioSvc) ListBuckets() ([]string, error) {
-	buckets, err := m.Client.ListBuckets(context.TODO(), nil)
+func (m *MinioSvc) ListBuckets(logger logger.Logger) ([]string, error) {
+	buckets, err := m.client.ListBuckets(context.TODO(), nil)
 	if err != nil {
-		log.Printf("Unable to get buckets: %v\n", err)
+		logger.Error("Unable to get buckets", map[string]interface{}{
+			"error": err,
+		})
 		return nil, err
 	}
 
@@ -62,14 +68,18 @@ func (m *MinioSvc) ListBuckets() ([]string, error) {
 	return bucketNames, nil
 }
 
-func (m *MinioSvc) GetObject(bucket, key string) ([]byte, error) {
+func (m *MinioSvc) GetObject(bucket, key string, logger logger.Logger) ([]byte, error) {
 	bucketName := bucket
-	result, err := m.Client.GetObject(context.TODO(), &s3.GetObjectInput{
+	result, err := m.client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		log.Printf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, key, err)
+		logger.Error("Couldn't get object", map[string]interface{}{
+			"error":       err,
+			"bucket_name": bucketName,
+			"key":         key,
+		})
 		return nil, err
 	}
 
@@ -77,15 +87,19 @@ func (m *MinioSvc) GetObject(bucket, key string) ([]byte, error) {
 
 	body, err := io.ReadAll(result.Body)
 	if err != nil {
-		log.Printf("Couldn't read object body from %v. Here's why: %v\n", key, err)
+		logger.Error("Couldn't read object body", map[string]interface{}{
+			"error":       err,
+			"bucket_name": bucketName,
+			"key":         key,
+		})
 		return nil, err
 	}
 
 	return body, nil
 }
 
-func (m *MinioSvc) UploadObject(bucket, key string, file io.Reader) (string, error) {
-	uploader := manager.NewUploader(m.Client)
+func (m *MinioSvc) UploadObject(bucket, key string, file io.Reader, logger logger.Logger) (string, error) {
+	uploader := manager.NewUploader(m.client)
 
 	result, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
@@ -93,7 +107,11 @@ func (m *MinioSvc) UploadObject(bucket, key string, file io.Reader) (string, err
 		Body:   file,
 	})
 	if err != nil {
-		log.Printf("Unable to upload: %v\n", err)
+		logger.Error("Unable to upload", map[string]interface{}{
+			"error":       err,
+			"bucket_name": bucket,
+			"key":         key,
+		})
 		return "", err
 	}
 
