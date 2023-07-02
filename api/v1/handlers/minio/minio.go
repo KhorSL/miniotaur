@@ -3,7 +3,6 @@ package minio
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/khorsl/minio_tutorial/common/constants"
 	"github.com/khorsl/minio_tutorial/common/log/logger"
 	"github.com/khorsl/minio_tutorial/internal/services/minio"
+	"github.com/rs/zerolog/log"
 )
 
 type MinioHandler struct {
@@ -82,7 +82,9 @@ func (mh *MinioHandler) UploadObject(w http.ResponseWriter, r *http.Request) {
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		log.Printf("Error retrieving the file: %v", err)
+		logger.Error("Error retrieving the file", map[string]interface{}{
+			"error": err,
+		})
 		http.Error(w, err.Error(), 400)
 		return
 	}
@@ -117,7 +119,7 @@ func (mh *MinioHandler) UploadObject(w http.ResponseWriter, r *http.Request) {
 func getLogger(loggerType string) logger.Logger {
 	uid, err := uuid.NewV4()
 	if err != nil {
-		log.Printf("Unable to generate UUID: %v", err)
+		log.Error().Err(err).Msg("Unable to generate UUID")
 	}
 
 	ctx := context.TODO()
