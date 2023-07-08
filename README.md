@@ -7,6 +7,7 @@ Simple object store service using [Minio](https://min.io/)
 ```
 cp .env_example .env
 make start
+make logs
 ```
 
 ### Accessing Minio

@@ -3,4 +3,9 @@ export
 
 start:
 	docker-compose up -d
-	go run main.go
+
+stop:
+	docker compose down
+
+logs:
+	docker compose logs -f

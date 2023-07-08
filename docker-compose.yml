@@ -1,13 +1,32 @@
 version: '3.7'
+networks:
+  mtnet:
+    name: 'mtnet'
 services:
-  # app:
-  #   image: golang:1.20.5-alpine3.18
-  #   ports:
-  #     - 3000:3000
+  miniotaur:
+    container_name: miniotaur
+    image: golang:1.20.5-alpine3.18
+    volumes:
+      - ./:/miniotaur
+    working_dir: /miniotaur
+    networks:
+      - mtnet
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_ENDPOINT=${S3_BUCKET_ENDPOINT}
+      - AWS_REGION=${AWS_REGION}
+      - DEFAULT_LOGGER_TYPE=${DEFAULT_LOGGER_TYPE}
+    ports:
+      - 8080:8080
+    command: go run main.go
   minio:
+    container_name: minio
     image: quay.io/minio/minio:RELEASE.2023-06-23T20-26-00Z
     volumes:
       - ./data:/data
+    networks:
+      - mtnet
     ports:
       - 9000:9000
       - 9001:9001
