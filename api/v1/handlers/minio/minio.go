@@ -1,14 +1,19 @@
 package minio
 
 import (
+	"context"
 	"errors"
-	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/gofrs/uuid"
+	"github.com/khorsl/minio_tutorial/common/constants"
+	"github.com/khorsl/minio_tutorial/common/log/logger"
 	"github.com/khorsl/minio_tutorial/internal/services/minio"
+	"github.com/rs/zerolog/log"
 )
 
 type MinioHandler struct {
@@ -22,7 +27,9 @@ func NewMinioHandler(svc *minio.MinioSvc) *MinioHandler {
 }
 
 func (mh *MinioHandler) ListBuckets(w http.ResponseWriter, r *http.Request) {
-	buckets, err := mh.svc.ListBuckets()
+	logger := getLogger(os.Getenv("DEFAULT_LOGGER_TYPE"))
+
+	buckets, err := mh.svc.ListBuckets(logger)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -35,10 +42,12 @@ func (mh *MinioHandler) ListBuckets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (mh *MinioHandler) GetObject(w http.ResponseWriter, r *http.Request) {
+	logger := getLogger(os.Getenv("DEFAULT_LOGGER_TYPE"))
+
 	bucket := chi.URLParam(r, "bucket")
 	key := chi.URLParam(r, "key")
 
-	obj, err := mh.svc.GetObject(bucket, key)
+	obj, err := mh.svc.GetObject(bucket, key, logger)
 	if err != nil {
 		//TODO
 		var nsb *types.NoSuchBucket
@@ -64,6 +73,8 @@ func (mh *MinioHandler) GetObject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (mh *MinioHandler) UploadObject(w http.ResponseWriter, r *http.Request) {
+	logger := getLogger(os.Getenv("DEFAULT_LOGGER_TYPE"))
+
 	bucket := chi.URLParam(r, "bucket")
 	key := chi.URLParam(r, "key")
 
@@ -71,22 +82,31 @@ func (mh *MinioHandler) UploadObject(w http.ResponseWriter, r *http.Request) {
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		log.Printf("Error retrieving the file: %v", err)
+		logger.Error("Error retrieving the file", map[string]interface{}{
+			"error": err,
+		})
 		http.Error(w, err.Error(), 400)
 		return
 	}
 	defer file.Close()
 
-	log.Printf("Uploading file: %+v, File Size: %+v, MIME Header: %+v",
-		handler.Filename,
-		handler.Size,
-		handler.Header)
+	logger.Info("Uploading file", map[string]interface{}{
+		"filename":    handler.Filename,
+		"file_size":   handler.Size,
+		"mime_header": handler.Header,
+	})
 
-	etag, err := mh.svc.UploadObject(bucket, key, file)
+	etag, err := mh.svc.UploadObject(bucket, key, file, logger)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+
+	logger.Info("File uploaded", map[string]interface{}{
+		"filename":    handler.Filename,
+		"file_size":   handler.Size,
+		"mime_header": handler.Header,
+	})
 
 	result := make(map[string]string)
 	result["etag"] = etag
@@ -94,4 +114,18 @@ func (mh *MinioHandler) UploadObject(w http.ResponseWriter, r *http.Request) {
 	result["key"] = key
 
 	render.JSON(w, r, result)
+}
+
+func getLogger(loggerType string) logger.Logger {
+	uid, err := uuid.NewV4()
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to generate UUID")
+	}
+
+	ctx := context.TODO()
+	ctx = context.WithValue(ctx, constants.LoggerCommonFields, map[string]interface{}{
+		"correlation_id": uid.String(),
+	})
+
+	return logger.NewLoggerWrapper(loggerType, ctx)
 }

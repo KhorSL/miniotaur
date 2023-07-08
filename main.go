@@ -9,9 +9,14 @@ import (
 	"time"
 
 	"github.com/khorsl/minio_tutorial/api/v1/router"
+	lgg "github.com/khorsl/minio_tutorial/common/log/logger"
+	"github.com/rs/zerolog"
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	logger := lgg.NewLoggerWrapper(os.Getenv("DEFAULT_LOGGER_TYPE"), context.Background())
+
 	r := router.Initialize()
 	router.ListRoutes(r)
 	server := &http.Server{
@@ -23,21 +28,23 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 
 	go func() {
-		log.Println("Starting server on port 8080...")
+		logger.Info("Starting server on port 8080...", nil)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed: %v", err)
 		}
 	}()
 
 	<-signalChan
-	log.Println("Shutting down server...")
+	logger.Info("Shutting down server...", nil)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Server shutdown failed: %v", err)
+		logger.Fatal("Server shutdown", map[string]interface{}{
+			"error": err,
+		})
 	}
 
-	log.Println("Server gracefully stopped.")
+	logger.Info("Server gracefully stopped.", nil)
 }
