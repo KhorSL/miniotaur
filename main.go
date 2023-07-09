@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/khorsl/minio_tutorial/api/v1/router"
-	lgg "github.com/khorsl/minio_tutorial/common/log/logger"
+	"github.com/khorsl/miniotaur/api/v1/router"
+	lgg "github.com/khorsl/miniotaur/common/log/logger"
 	"github.com/rs/zerolog"
 )
 

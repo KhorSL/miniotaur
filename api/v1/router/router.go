@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
-	"github.com/khorsl/minio_tutorial/api/v1/handlers"
+	"github.com/khorsl/miniotaur/api/v1/handlers"
 )
 
 func Initialize() *chi.Mux {
