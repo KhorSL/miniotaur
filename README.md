@@ -4,10 +4,20 @@ Simple object store service using [Minio](https://min.io/)
 
 ## Setup and start
 
+### For localhost development
+
 ```
 cp .env_example .env
 make start
-make logs
+```
+
+OR
+
+### For docker compose development
+
+```
+cp .env_example .env
+make startd
 ```
 
 ### Accessing Minio

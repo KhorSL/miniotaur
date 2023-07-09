@@ -19,7 +19,7 @@ services:
       - DEFAULT_LOGGER_TYPE=${DEFAULT_LOGGER_TYPE}
     ports:
       - 8080:8080
-    command: go run main.go
+    command: ./scripts/run-local.sh
   minio:
     container_name: minio
     image: quay.io/minio/minio:RELEASE.2023-06-23T20-26-00Z
