@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/go-chi/chi/v5"
-	mh "github.com/khorsl/minio_tutorial/api/v1/handlers/minio"
-	ms "github.com/khorsl/minio_tutorial/internal/services/minio"
+	mh "github.com/khorsl/miniotaur/api/v1/handlers/minio"
+	ms "github.com/khorsl/miniotaur/internal/services/minio"
 )
 
 func Routes() *chi.Mux {

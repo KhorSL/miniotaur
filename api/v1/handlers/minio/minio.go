@@ -10,9 +10,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
-	"github.com/khorsl/minio_tutorial/common/constants"
-	"github.com/khorsl/minio_tutorial/common/log/logger"
-	"github.com/khorsl/minio_tutorial/internal/services/minio"
+	"github.com/khorsl/miniotaur/common/constants"
+	"github.com/khorsl/miniotaur/common/log/logger"
+	"github.com/khorsl/miniotaur/internal/services/minio"
 	"github.com/rs/zerolog/log"
 )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/khorsl/minio_tutorial/common/log/logger"
+	"github.com/khorsl/miniotaur/common/log/logger"
 )
 
 func NewMinioSvc() *MinioSvc {

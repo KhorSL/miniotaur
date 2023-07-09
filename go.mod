@@ -1,4 +1,4 @@
-module github.com/khorsl/minio_tutorial
+module github.com/khorsl/miniotaur
 
 go 1.20
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/khorsl/minio_tutorial/common/constants"
+	"github.com/khorsl/miniotaur/common/constants"
 	"github.com/rs/zerolog"
 )
 
